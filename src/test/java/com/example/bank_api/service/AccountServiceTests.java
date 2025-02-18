@@ -32,12 +32,12 @@ class AccountServiceTests {
     void testCreateAccount() {
         String accountId = "1";
         String owner = "CHAYEB";
-        double balance = 100.0;
+        double balance = 0;
 
         Account expectedAccount = new Account(accountId, owner, balance);
         when(accountRepository.save(any(Account.class))).thenReturn(expectedAccount);
 
-        Account createdAccount = accountService.createAccount(accountId, owner, balance);
+        Account createdAccount = accountService.createAccount(owner);
         assertNotNull(createdAccount);
         assertEquals(accountId, createdAccount.getAccountId());
         assertEquals(owner, createdAccount.getOwner());
