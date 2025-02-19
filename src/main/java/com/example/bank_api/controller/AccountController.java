@@ -1,5 +1,6 @@
 package com.example.bank_api.controller;
 
+import com.example.bank_api.exception.AccountNotFoundException;
 import com.example.bank_api.model.Account;
 import com.example.bank_api.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class AccountController {
         try {
             Account updatedAccount = accountService.depositMoney(accountId, amount);
             return new ResponseEntity<>(updatedAccount, HttpStatus.OK);
-        } catch (RuntimeException e) {
+        } catch (AccountNotFoundException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }

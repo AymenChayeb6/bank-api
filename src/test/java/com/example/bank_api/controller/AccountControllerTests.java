@@ -15,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,7 +58,8 @@ public class AccountControllerTests {
         mockMvc.perform(post("/bank_api/accounts/deposit")
                         .param("accountId", "123")
                         .param("amount", String.valueOf(amount)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Account with account id = 123 not found"));
     }
 
     @Test
@@ -65,6 +67,37 @@ public class AccountControllerTests {
         accountRepository.save(new Account(accountId, "CHAYEB", 50.0));
 
         mockMvc.perform(post("/bank_api/accounts/deposit")
+                        .param("accountId", accountId)
+                        .param("amount", String.valueOf(amount)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testWithdrawMoney_shouldReturnNotFound_WhenAccountDoesNotExist() throws Exception {
+
+        mockMvc.perform(post("/bank_api/accounts/withdraw")
+                        .param("accountId", "123")
+                        .param("amount", String.valueOf(amount)))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Account with account id = 123 not found"));;
+    }
+
+    @Test
+    public void testWithdrawMoney_shouldReturnBadRequest_WhenInsufficientBalance() throws Exception {
+        accountRepository.save(new Account(accountId, owner, 50.0));
+
+        mockMvc.perform(post("/bank_api/accounts/withdraw")
+                        .param("accountId", accountId)
+                        .param("amount", String.valueOf(amount)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Insufficient balance in account id = 1"));
+    }
+
+    @Test
+    public void testWithdrawMoney_shouldReturnOk_WhenAccountExist() throws Exception {
+        accountRepository.save(new Account(accountId, owner, 120.0));
+
+        mockMvc.perform(post("/bank_api/accounts/withdraw")
                         .param("accountId", accountId)
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isOk());
