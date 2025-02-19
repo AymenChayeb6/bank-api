@@ -5,10 +5,7 @@ import com.example.bank_api.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/bank_api/accounts")
@@ -25,5 +22,15 @@ public class AccountController {
     public ResponseEntity<Account> createAccount(@RequestParam String owner) {
         Account createdAccount = accountService.createAccount(owner);
         return new ResponseEntity<>(createdAccount, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/deposit")
+    public ResponseEntity<?> depositMoney(@RequestParam String accountId, @RequestParam double amount) {
+        try {
+            Account updatedAccount = accountService.depositMoney(accountId, amount);
+            return new ResponseEntity<>(updatedAccount, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
     }
 }
