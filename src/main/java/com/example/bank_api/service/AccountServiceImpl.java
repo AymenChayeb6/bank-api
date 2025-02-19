@@ -25,4 +25,15 @@ public class AccountServiceImpl implements AccountService {
         existingAccount.setBalance(existingAccount.getBalance() + amount);
         return accountRepository.save(existingAccount);
     }
+
+    @Override
+    public Account withdrawMoney(String accountId, double amount) {
+        Account existingAccount = accountRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new RuntimeException("Account Not Found"));
+        if (existingAccount.getBalance() < amount) {
+            throw new RuntimeException("Insufficient balance");
+        }
+        existingAccount.setBalance(existingAccount.getBalance() - amount);
+        return accountRepository.save(existingAccount);
+    }
 }
