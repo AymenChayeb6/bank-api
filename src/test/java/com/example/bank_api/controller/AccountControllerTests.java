@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,6 +39,19 @@ public class AccountControllerTests {
                 .andExpect(jsonPath("$.owner").value("CHAYEB"))
                 .andExpect(jsonPath("$.balance").value(0));
         ;
+    }
+
+
+    @Test
+    public void testDepositMoney() throws Exception {
+
+        mockMvc.perform(put("/bank_api/accounts/deposit")
+                        .param("accountId", "1")
+                        .param("amount", String.valueOf(100.0)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountId").value("1"))
+                .andExpect(jsonPath("$.balance").value(100.0));
+
     }
 
 
