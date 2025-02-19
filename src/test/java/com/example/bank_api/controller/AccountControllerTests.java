@@ -15,8 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest
@@ -25,7 +24,6 @@ public class AccountControllerTests {
 
     String accountId = "1";
     String owner = "CHAYEB";
-    double balance = 0;
     double amount = 100.0;
 
     @Autowired
@@ -42,6 +40,7 @@ public class AccountControllerTests {
 
     @BeforeEach
     void setUp() {
+        accountRepository.deleteAll();
     }
 
     @Test
@@ -64,12 +63,14 @@ public class AccountControllerTests {
 
     @Test
     public void testDepositMoney_shouldReturnOk_WhenAccountExist() throws Exception {
-        accountRepository.save(new Account(accountId, "CHAYEB", 50.0));
+        accountRepository.save(new Account(accountId, owner, 50.0));
 
         mockMvc.perform(post("/bank_api/accounts/deposit")
                         .param("accountId", accountId)
                         .param("amount", String.valueOf(amount)))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountId").value(accountId))
+                .andExpect(jsonPath("$.balance").value(150.0));
     }
 
     @Test
@@ -79,7 +80,8 @@ public class AccountControllerTests {
                         .param("accountId", "123")
                         .param("amount", String.valueOf(amount)))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string("Account with account id = 123 not found"));;
+                .andExpect(content().string("Account with account id = 123 not found"));
+        ;
     }
 
     @Test
@@ -100,7 +102,9 @@ public class AccountControllerTests {
         mockMvc.perform(post("/bank_api/accounts/withdraw")
                         .param("accountId", accountId)
                         .param("amount", String.valueOf(amount)))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.accountId").value(accountId))
+                .andExpect(jsonPath("$.balance").value(20.0));;
     }
 
 
