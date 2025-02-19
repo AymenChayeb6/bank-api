@@ -17,4 +17,12 @@ public class AccountServiceImpl implements AccountService {
         Account account = new Account(UUID.randomUUID().toString(), owner, 0);
         return accountRepository.save(account);
     }
+
+    @Override
+    public Account depositMoney(String accountId, double amount) {
+        Account existingAccount = accountRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new RuntimeException("Account Not Found"));
+        existingAccount.setBalance(existingAccount.getBalance() + amount);
+        return accountRepository.save(existingAccount);
+    }
 }

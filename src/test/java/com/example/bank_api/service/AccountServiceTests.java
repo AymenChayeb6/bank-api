@@ -9,6 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -47,12 +49,11 @@ class AccountServiceTests {
     @Test
     void testDepositMoney() throws Exception {
         Account expectedAccount = new Account(accountId, owner, balance);
-        when(accountRepository.save(expectedAccount)).thenReturn(expectedAccount);
-
-        when(accountRepository.findByAccountId(anyString())).thenReturn(expectedAccount);
+        when(accountRepository.save(any(Account.class))).thenReturn(expectedAccount);
+        when(accountRepository.findByAccountId(anyString())).thenReturn(Optional.of(expectedAccount));
 
         accountService.createAccount(owner);
-        Account updatedAccount = accountService.deposit(accountId, 100.0);
+        Account updatedAccount = accountService.depositMoney(accountId, 100.0);
         assertEquals(100.0, updatedAccount.getBalance());
     }
 
