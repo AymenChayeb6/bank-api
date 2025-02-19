@@ -22,20 +22,23 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account depositMoney(String accountId, double amount) {
-        Account existingAccount = accountRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new AccountNotFoundException("Account with account id = " + accountId + " not found"));
+        Account existingAccount = getExistingAccountByAccountId(accountId);
         existingAccount.setBalance(existingAccount.getBalance() + amount);
         return accountRepository.save(existingAccount);
     }
 
     @Override
     public Account withdrawMoney(String accountId, double amount) {
-        Account existingAccount = accountRepository.findByAccountId(accountId)
-                .orElseThrow(() -> new AccountNotFoundException("Account with account id = " + accountId + " not found"));
+        Account existingAccount = getExistingAccountByAccountId(accountId);
         if (existingAccount.getBalance() < amount) {
             throw new InsufficientBalanceException("Insufficient balance in account id = " + accountId);
         }
         existingAccount.setBalance(existingAccount.getBalance() - amount);
         return accountRepository.save(existingAccount);
+    }
+
+    private Account getExistingAccountByAccountId(String accountId) {
+        return accountRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new AccountNotFoundException("Account with account id = " + accountId + " not found"));
     }
 }
