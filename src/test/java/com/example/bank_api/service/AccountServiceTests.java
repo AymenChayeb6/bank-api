@@ -47,7 +47,7 @@ class AccountServiceTests {
     }
 
     @Test
-    void testDepositMoney() throws Exception {
+    void testDepositMoney() {
         Account expectedAccount = new Account(accountId, owner, balance);
         when(accountRepository.save(any(Account.class))).thenReturn(expectedAccount);
         when(accountRepository.findByAccountId(anyString())).thenReturn(Optional.of(expectedAccount));
@@ -55,6 +55,18 @@ class AccountServiceTests {
         accountService.createAccount(owner);
         Account updatedAccount = accountService.depositMoney(accountId, 100.0);
         assertEquals(100.0, updatedAccount.getBalance());
+    }
+
+    @Test
+    void testWithdrawMoney() {
+        Account expectedAccount = new Account(accountId, owner, balance);
+        when(accountRepository.save(any(Account.class))).thenReturn(expectedAccount);
+        when(accountRepository.findByAccountId(anyString())).thenReturn(Optional.of(expectedAccount));
+
+        accountService.createAccount(owner);
+        accountService.depositMoney(accountId, 100.0);
+        Account updatedAccount = accountService.withdrawMoney(accountId, 20.0);
+        assertEquals(80.0, updatedAccount.getBalance());
     }
 
 
