@@ -1,5 +1,7 @@
 package com.example.bank_api.controller;
 
+import com.example.bank_api.model.Account;
+import com.example.bank_api.repository.AccountRepository;
 import com.example.bank_api.service.AccountService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,6 +30,9 @@ public class AccountControllerTests {
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    private AccountRepository accountRepository;
+
     @Mock
     private AccountService accountService;
 
@@ -37,7 +41,6 @@ public class AccountControllerTests {
 
     @BeforeEach
     void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(accountController).build();
     }
 
     @Test
@@ -48,9 +51,18 @@ public class AccountControllerTests {
                 .andExpect(status().isCreated());
     }
 
+    @Test
+    public void testDepositMoney_shouldReturnNotFound_WhenAccountDoesNotExist() throws Exception {
+
+        mockMvc.perform(post("/bank_api/accounts/deposit")
+                        .param("accountId", "123")
+                        .param("amount", String.valueOf(amount)))
+                .andExpect(status().isNotFound());
+    }
 
     @Test
-    public void testDepositMoney() throws Exception {
+    public void testDepositMoney_shouldReturnOk_WhenAccountExist() throws Exception {
+        accountRepository.save(new Account(accountId, "CHAYEB", 50.0));
 
         mockMvc.perform(post("/bank_api/accounts/deposit")
                         .param("accountId", accountId)
