@@ -1,7 +1,5 @@
 package com.example.bank_api.controller;
 
-import com.example.bank_api.exception.AccountNotFoundException;
-import com.example.bank_api.exception.InsufficientBalanceException;
 import com.example.bank_api.model.Account;
 import com.example.bank_api.service.AccountService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,24 +34,15 @@ public class AccountController {
     @Operation(summary = "deposit money into an account")
     @PostMapping("/deposit")
     public ResponseEntity<?> depositMoney(@RequestParam String accountId, @RequestParam double amount) {
-        try {
-            Account updatedAccount = accountService.depositMoney(accountId, amount);
-            return new ResponseEntity<>(updatedAccount, HttpStatus.OK);
-        } catch (AccountNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+        Account updatedAccount = accountService.depositMoney(accountId, amount);
+        return new ResponseEntity<>(updatedAccount, HttpStatus.OK);
+
     }
 
     @Operation(summary = "withdraw money from an account")
     @PostMapping("/withdraw")
     public ResponseEntity<?> withdrawMoney(@RequestParam String accountId, @RequestParam double amount) {
-        try {
-            Account updatedAccount = accountService.withdrawMoney(accountId, amount);
-            return new ResponseEntity<>(updatedAccount, HttpStatus.OK);
-        } catch (AccountNotFoundException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (InsufficientBalanceException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        Account updatedAccount = accountService.withdrawMoney(accountId, amount);
+        return new ResponseEntity<>(updatedAccount, HttpStatus.OK);
     }
 }

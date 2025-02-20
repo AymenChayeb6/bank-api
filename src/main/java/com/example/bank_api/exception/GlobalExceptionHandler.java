@@ -5,11 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.time.LocalDateTime;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
     private ResponseEntity<ErrorResponse> buildResponse(String message, HttpStatus status) {
-        ErrorResponse errorResponse = new ErrorResponse(message, status.value());
+        ErrorResponse errorResponse = new ErrorResponse(LocalDateTime.now(), status.value(), message);
         return new ResponseEntity<>(errorResponse, status);
     }
 
