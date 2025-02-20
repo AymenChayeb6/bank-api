@@ -1,8 +1,10 @@
 package com.example.bank_api.controller;
 
+import com.example.bank_api.dto.AccountDto;
 import com.example.bank_api.model.Account;
 import com.example.bank_api.repository.AccountRepository;
 import com.example.bank_api.service.AccountService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -32,6 +35,9 @@ public class AccountControllerTests {
     @Autowired
     private AccountRepository accountRepository;
 
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Mock
     private AccountService accountService;
 
@@ -45,29 +51,39 @@ public class AccountControllerTests {
 
     @Test
     public void testCreateAccount() throws Exception {
+        AccountDto accountDto = new AccountDto();
+        accountDto.setOwner(owner);
 
         mockMvc.perform(post("/bank_api/accounts")
-                        .param("owner", owner))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(accountDto)))
                 .andExpect(status().isCreated());
     }
 
     @Test
     public void testDepositMoney_shouldReturnNotFound_WhenAccountDoesNotExist() throws Exception {
+        AccountDto accountDto = new AccountDto();
+        accountDto.setAccountId("123");
+        accountDto.setAmount(amount);
 
         mockMvc.perform(post("/bank_api/accounts/deposit")
-                        .param("accountId", "123")
-                        .param("amount", String.valueOf(amount)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(accountDto)))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string("Account with account id = 123 not found"));
+                .andExpect(jsonPath("$.message").value("Account with account id = 123 not found"));
     }
 
     @Test
     public void testDepositMoney_shouldReturnOk_WhenAccountExist() throws Exception {
         accountRepository.save(new Account(accountId, owner, 50.0));
 
+        AccountDto accountDto = new AccountDto();
+        accountDto.setAccountId(accountId);
+        accountDto.setAmount(amount);
+
         mockMvc.perform(post("/bank_api/accounts/deposit")
-                        .param("accountId", accountId)
-                        .param("amount", String.valueOf(amount)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(accountDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accountId").value(accountId))
                 .andExpect(jsonPath("$.balance").value(150.0));
@@ -75,12 +91,16 @@ public class AccountControllerTests {
 
     @Test
     public void testWithdrawMoney_shouldReturnNotFound_WhenAccountDoesNotExist() throws Exception {
+        AccountDto accountDto = new AccountDto();
+        accountDto.setAccountId("123");
+        accountDto.setAmount(amount);
 
         mockMvc.perform(post("/bank_api/accounts/withdraw")
-                        .param("accountId", "123")
-                        .param("amount", String.valueOf(amount)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(accountDto)))
                 .andExpect(status().isNotFound())
-                .andExpect(content().string("Account with account id = 123 not found"));
+                .andExpect(jsonPath("$.message").value("Account with account id = 123 not found"));
+        ;
         ;
     }
 
@@ -88,23 +108,34 @@ public class AccountControllerTests {
     public void testWithdrawMoney_shouldReturnBadRequest_WhenInsufficientBalance() throws Exception {
         accountRepository.save(new Account(accountId, owner, 50.0));
 
+        AccountDto accountDto = new AccountDto();
+        accountDto.setAccountId(accountId);
+        accountDto.setAmount(amount);
+
         mockMvc.perform(post("/bank_api/accounts/withdraw")
-                        .param("accountId", accountId)
-                        .param("amount", String.valueOf(amount)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(accountDto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Insufficient balance in account id = 1"));
+                .andExpect(content().string("Insufficient balance in account id = 1"))
+                .andExpect(jsonPath("$.message").value("Insufficient balance in account id = 1"));
+        ;
     }
 
     @Test
     public void testWithdrawMoney_shouldReturnOk_WhenAccountExist() throws Exception {
         accountRepository.save(new Account(accountId, owner, 120.0));
 
+        AccountDto accountDto = new AccountDto();
+        accountDto.setAccountId(accountId);
+        accountDto.setAmount(amount);
+
         mockMvc.perform(post("/bank_api/accounts/withdraw")
-                        .param("accountId", accountId)
-                        .param("amount", String.valueOf(amount)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(accountDto)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accountId").value(accountId))
-                .andExpect(jsonPath("$.balance").value(20.0));;
+                .andExpect(jsonPath("$.balance").value(20.0));
+        ;
     }
 
 

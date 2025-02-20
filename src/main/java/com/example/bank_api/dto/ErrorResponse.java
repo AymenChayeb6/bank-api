@@ -1,4 +1,4 @@
-package com.example.bank_api.exception;
+package com.example.bank_api.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
