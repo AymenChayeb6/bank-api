@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleAccountNotFound(Exception e) {
+    public ResponseEntity<ErrorResponse> handleGlobalException(Exception e) {
         return buildResponse("An unexpected error occured", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
