@@ -54,7 +54,7 @@ public class AccountControllerTests {
         AccountDto accountDto = new AccountDto();
         accountDto.setOwner(owner);
 
-        mockMvc.perform(post("/bank_api/accounts")
+        mockMvc.perform(post("/bank_api/accounts/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(accountDto)))
                 .andExpect(status().isCreated());
@@ -116,7 +116,6 @@ public class AccountControllerTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(accountDto)))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Insufficient balance in account id = 1"))
                 .andExpect(jsonPath("$.message").value("Insufficient balance in account id = 1"));
         ;
     }

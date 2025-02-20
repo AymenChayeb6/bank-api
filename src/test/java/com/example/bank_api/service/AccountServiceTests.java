@@ -43,6 +43,7 @@ class AccountServiceTests {
     void testCreateAccount() {
         Account expectedAccount = new Account(accountId, owner, balance);
         when(accountRepository.save(any(Account.class))).thenReturn(expectedAccount);
+        when(accountMapper.toEntity(any(AccountDto.class))).thenReturn(expectedAccount);
 
         Account createdAccount = accountService.createAccount(new AccountDto(accountId, owner, balance));
         assertNotNull(createdAccount);
@@ -67,6 +68,7 @@ class AccountServiceTests {
     void testWithdrawMoney() {
         Account expectedAccount = new Account(accountId, owner, balance);
         when(accountRepository.save(any(Account.class))).thenReturn(expectedAccount);
+        when(accountMapper.toEntity(any(AccountDto.class))).thenReturn(expectedAccount);
         when(accountRepository.findByAccountId(anyString())).thenReturn(Optional.of(expectedAccount));
 
         accountService.createAccount(new AccountDto(accountId, owner, balance));
