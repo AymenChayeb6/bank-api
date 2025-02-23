@@ -2,11 +2,10 @@ package com.example.bank_api.service;
 
 import com.example.bank_api.dto.AccountDto;
 import com.example.bank_api.exception.AccountNotFoundException;
-import com.example.bank_api.exception.InsufficientBalanceException;
-import com.example.bank_api.exception.InvalidAmountException;
 import com.example.bank_api.mapper.AccountMapper;
 import com.example.bank_api.model.Account;
 import com.example.bank_api.repository.AccountRepository;
+import com.example.bank_api.validator.AccountValidator;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +16,12 @@ import java.util.UUID;
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
+    private final AccountValidator accountValidator;
 
-    public AccountServiceImpl(AccountRepository accountRepository, AccountMapper accountMapper) {
+    public AccountServiceImpl(AccountRepository accountRepository, AccountMapper accountMapper, AccountValidator accountValidator) {
         this.accountRepository = accountRepository;
         this.accountMapper = accountMapper;
+        this.accountValidator = accountValidator;
     }
 
     @Override
@@ -31,9 +32,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account depositMoney(String accountId, double amount) {
-        if (amount <= 0) {
-            throw new InvalidAmountException("Amount must be greater than zero.");
-        }
+        accountValidator.validateAmount(amount);
         Account existingAccount = getExistingAccountByAccountId(accountId);
         existingAccount.setBalance(existingAccount.getBalance() + amount);
         return accountRepository.save(existingAccount);
@@ -41,13 +40,9 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account withdrawMoney(String accountId, double amount) {
-        if (amount <= 0) {
-            throw new InvalidAmountException("Amount must be greater than zero.");
-        }
+        accountValidator.validateAmount(amount);
         Account existingAccount = getExistingAccountByAccountId(accountId);
-        if (existingAccount.getBalance() < amount) {
-            throw new InsufficientBalanceException("Insufficient balance in account id = " + accountId);
-        }
+        accountValidator.validateBalance(amount, existingAccount.getBalance(), accountId);
         existingAccount.setBalance(existingAccount.getBalance() - amount);
         return accountRepository.save(existingAccount);
     }
